@@ -1,0 +1,76 @@
+---
+title: "Mass Shooting Data"
+author: "Christian Diangco"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(knitr)
+source("analysis.R")
+```
+## Summary Information
+The data used in this document comes from the
+[Gun Violence Archive](https://www.gunviolencearchive.org/reports/mass-shooting).
+In 2018, **`r num_shootings`** mass shootings occurred. The number of lives lost
+this year due to mass shootings was **`r lives_lost`**. The city most impacted by
+mass shootings (i.e. the city in which the most shootings occurred) was 
+**`r city_biggest_impact`**. The month in which the most mass shootings occurred
+was **`r month_most_shootings`**. The shooting with the most victims
+**(`r shooting_most_victims$total_victims`)** was at
+**`r shooting_most_victims$address`**, **`r shooting_most_victims$city`**,
+**`r shooting_most_victims$state`**.
+
+## Summary Table
+`r kable(shootings_per_state)`
+The table above shows the number of shootings, people injured, and people
+killed for each state in 2018. Some important data we can extract from 
+this table is that the maximum number of people killed in 2018 due to mass shootings
+in a state was `r max(shootings_per_state[[4]])`. In comparison, the maximum number
+of people injured in 2018 due to mass shootings in a state was `r max(shootings_per_state[[3]])`.
+We can also see that the largest number of shootings that occurred in a single 
+state was `r max(shootings_per_state[[2]])`. The table also shows that there is a correlation
+between the number of shootings and the number of people killed/injured.
+
+## Description of a particular incident
+On **`r seattle_shooting_date`**, a mass shooting occurred in
+**`r seattle_shooting_city`**, **`r seattle_shooting_state`**. It took place at
+**`r seattle_shooting_address`**. **`r seattle_shooting_killed`** people were killed in
+the shooting. **`r seattle_shooting_injured`** other people were injured in the
+shooting as well. You can find more information about the shooting
+[here](https://www.seattletimes.com/seattle-news/crime/two-men-killed-in-skyway-shooting-identified/).
+
+## An interactive map
+The interactive map shown below displays markers for each shooting that scales
+with the number of people killed. This allows us to quickly see areas where
+mass shootings occur more frequently and how big of an impact they have.
+`r mass_shooting_map`
+From this interactive map, we can learn various insights. For example, we can
+see that most of the mass shootings have occurred on the eastern portion of the
+country. There are also more shootings that occur on the southern half
+than the northern half. Also, even though there are more shootings in the east,
+most of the shootings in the west were larger.
+
+## Which month had the most people killed due to mass shootings, and which had the most injured?
+```{r data_plot, echo = FALSE, message = FALSE, fig.width = 10, fig.height = 6}
+ggplot(data = mass_shootings_month) +
+  geom_col(
+    mapping = aes(
+      x = as.Date(dummy_date, "%B %d, %Y"),
+      y = num_people,
+      fill = status
+    ),
+    position = "dodge",
+  ) +
+  scale_x_date(date_breaks = "month", date_labels = "%b") +
+  labs(
+    x = "Month",
+    y = "Number of Mass Shooting Victims",
+    title = "Number of People Killed and Injured in Mass Shootings by Month"
+  ) +
+  scale_fill_brewer(palette = "Set1", name = "Status", labels = c("Injured", "Killed"))
+```
+To answer this question, I created a bar graph. This is because with a bar graph you can clearly see both the number of people injured and killed each month, while having them side-by-side to compare. Looking at the graph, we can see that the month with the most people killed was November, and the month with the most people injured was June. It is also clear that the month with the most total victims was also June.
+
+## Critical Reflection
+The data in this report could be used for good, as it can help to prevent future mass shootings from occurring. Similar to the _PredPol_ software discussed in the reading, the data could be used to predict the areas of future mass shootings and thus apply appropriate security measures in those areas. However, the use of this data may be harmful as well, as it may cause a pernicious feedback loop. As explained by O'Neil, this would result in the same areas and groups of people being targeted by the model, making it biased.
